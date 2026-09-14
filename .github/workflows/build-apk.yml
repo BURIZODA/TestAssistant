@@ -1,0 +1,56 @@
+name: Build TestAssistant APK
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Install Android SDK components
+        run: |
+          yes | sdkmanager --licenses || true
+          sdkmanager "platform-tools" "platforms;android-35" "build-tools;35.0.0"
+
+      - name: Extract project
+        run: |
+          mkdir -p project
+          unzip -q TestAssistant-MVP-v1.0.zip -d project
+
+      - name: Show project files
+        run: |
+          find project -maxdepth 4 -type f | sort
+
+      - name: Build APK
+        working-directory: project
+        run: |
+          gradle assembleDebug --stacktrace
+
+      - name: Package APK
+        run: |
+          mkdir -p dist
+          cp project/app/build/outputs/apk/debug/app-debug.apk dist/TestAssistant-MVP.apk
+          cd dist
+          zip TestAssistant-MVP.zip TestAssistant-MVP.apk
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: TestAssistant-MVP
+          path: dist/TestAssistant-MVP.zip
