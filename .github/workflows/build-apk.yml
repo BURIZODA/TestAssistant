@@ -38,14 +38,14 @@ jobs:
           find project -maxdepth 4 -type f | sort
 
       - name: Build APK
-        working-directory: project
+        working-directory: project/TestAssistant-MVP
         run: |
           gradle assembleDebug --stacktrace
 
       - name: Package APK
         run: |
           mkdir -p dist
-          cp project/app/build/outputs/apk/debug/app-debug.apk dist/TestAssistant-MVP.apk
+          cp project/TestAssistant-MVP/app/build/outputs/apk/debug/app-debug.apk dist/TestAssistant-MVP.apk
           cd dist
           zip TestAssistant-MVP.zip TestAssistant-MVP.apk
 
